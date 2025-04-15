@@ -1,4 +1,4 @@
-# Projeto_Huffman
+# Projeto Huffman
 
 Projeto final da disciplina de Estrutura de Dados
 Instituto de Computação - Universidade Federal de Alagoas
