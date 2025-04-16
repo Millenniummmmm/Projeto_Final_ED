@@ -62,7 +62,7 @@ void Criar_Lista_Encadeada(Lista *l) {
 // Vai inserir os nós da árvore na lista encadeada de forma ordenada. Recebe o nó a ser inserido e a lista encadeada
 // No final de tudo, a head vai apontar para o no com menor frequencia.
 void Inserir_em_Ordem(Lista *l, Base *base){
-    if(l->head == NULL || *(unsigned int *)base->frequencia < *(unsigned int *)l->head->frequencia){
+    if(l->head == NULL || *(long long int *)base->frequencia < *(long long int *)l->head->frequencia){
          // Se caso a frequencia for menor que a frequencia do inicio da lista ou se a lista estiver vazia
          base->proximo = l->head; // Adiciona o nó no início da lista, se caso head apontar pra nulo agora o novo nó vai apontar pra nulo. Se caso apontar pra outro no, faz a troca de ponteiros.
          l->head = base; // Agora head vai apontar pra o novo nó adicionado
@@ -71,7 +71,7 @@ void Inserir_em_Ordem(Lista *l, Base *base){
     }  
  
     Base *atual = l->head; // Inicializa um ponteiro auxiliar para percorrer a lista
-    while(atual->proximo != NULL && *(unsigned int *)atual->proximo->frequencia <= *(unsigned int *)base->frequencia){
+    while(atual->proximo != NULL && *(long long int *)atual->proximo->frequencia <= *(long long int *)base->frequencia){
         atual = atual->proximo; // Percorre a lista até encontrar a posição correta
     }
     base->proximo = atual->proximo; // Insere o nó na posição correta
@@ -79,6 +79,7 @@ void Inserir_em_Ordem(Lista *l, Base *base){
     l->tamanho++; // Incrementa o tamanho da lista
 }
 // Vai preencher a lista encadeada com os nós criados a partir da tabela de frequências. Recebe a lista encadeada vazia e a tabela de frequências
+// Alerta nessa função
 void Preencher_Lista_Encadeada(Lista *l, unsigned int *tabela_frequencia) {
     for (int i = 0; i < TAMANHO_MAX; i++) {
         if (tabela_frequencia[i] > 0) { // Verifica se a frequência é maior que zero. As frequencias maiores que zero que importam
@@ -89,22 +90,21 @@ void Preencher_Lista_Encadeada(Lista *l, unsigned int *tabela_frequencia) {
                 perror("Erro ao alocar memória para o nó da lista encadeada.\n");
                 exit(EXIT_FAILURE); // Encerra o programa se a alocação falhar
             }
-
+            // VERIFICAR SE VAI PRECISAR MANTER COM CASTING DESSA FORMA MAIS PRA FRENTE
             // Aloca memória para o símbolo
             unsigned char *simbolo = malloc(sizeof(unsigned char));
             *simbolo = (unsigned char)i;
             novo_nodo->dados = simbolo;
 
             // Aloca memória para a frequência 
-            unsigned int *frequencia = malloc(sizeof(unsigned int));
-            *frequencia = tabela_frequencia[i];
+            long long int *frequencia = malloc(sizeof(long long int));
+            *frequencia = (long long int)tabela_frequencia[i];
             novo_nodo->frequencia = frequencia;
             // Inicializa os ponteiros para nulo pois não sabemos onde eles vão apontar ainda
             novo_nodo->proximo = NULL; 
             novo_nodo->direita = NULL; 
             novo_nodo->esquerda = NULL; 
             Inserir_em_Ordem(l, novo_nodo); // Vai garantir que a lista esteja ordenada.
-
         }
     }
 }
@@ -114,13 +114,86 @@ void imprimir_lista(Lista *l) {
     printf("Lista Encadeada:\n");
     printf("Tamanho da lista: %d\n", l->tamanho); // Imprime o tamanho da lista
     while (atual != NULL) { // Enquanto o ponteiro atual não for NULL
-        printf("Símbolo: %c, Frequência: %u\n", *(unsigned char *)atual->dados, *(unsigned int *)atual->frequencia);// Imprime o símbolo e a frequência
+        printf("Símbolo: %c, Frequência: %lld\n", *(unsigned char *)atual->dados, *(long long int *)atual->frequencia);// Imprime o símbolo e a frequência
         atual = atual->proximo; // Avança para o próximo nó
     }
 }
 
+
+// Terceiro passo: Montar a árvore de Huffman ------------------------- //
+
+/* 
+A árvore de Huffman é uma árvore binária onde cada nó interno tem dois filhos e cada folha representa um símbolo.
+A árvore é construída a partir da tabela de frequências, onde os símbolos mais frequentes estão mais próximos da raiz e os menos frequentes estão mais distantes.
+*/
+
+// Vai receber a lista e vai retornar o inicio da lista, o no com a menor frequencia.
+Base* Pegar_Node_Inicial(Lista *l) {
+    Base *temp = NULL; // Inicializa um ponteiro temporário para armazenar o nó a ser removido
+
+    if (l->head != NULL) { // Verifica se a lista não está vazia
+        temp = l->head; // Vai receber o nó que queremos pegar para remoção
+        l->head = l->head->proximo; // O novo inicio vai ser o proximo node já que vamos remover esse nó
+        l->tamanho--; // Decrementa o tamanho da lista, visto que removemos um nó
+        temp->proximo = NULL; // O nó removido não deve apontar para nada, já que ele foi removido da lista
+    }
+    return temp; // Retorna o nó da cabeça da lista
+}
+// Recebe a lista e constrói a árvore de Huffman, retornando a raiz da árvore
+Base* Construir_Arvore_de_Huffman(Lista *no){
+
+    while(no->tamanho > 1) {
+        Base *node1 = Pegar_Node_Inicial(no); 
+        Base *node2 = Pegar_Node_Inicial(no); 
+
+        // Cria um novo nó que vai ser a raiz da árvore
+        Base *raiz_temporaria = malloc(sizeof(Base)); // Aloca memória para o novo nó
+
+        if (!raiz_temporaria) { // Verifica se houve algum erro na alocação
+            perror("Erro ao alocar memória para o nó da árvore de Huffman.\n");
+            exit(EXIT_FAILURE); // Encerra o programa se a alocação falhar
+        }
+        // Aloca memória para a frequência e soma as frequências dos nós filhos
+        long long int *frequencia = malloc(sizeof(long long int));
+        *frequencia = *(long long int *)node1->frequencia + *(long long int *)node2->frequencia;
+        //printf("Frequência: %lld\n", *frequencia); // Imprime a frequência do nó pai
+        raiz_temporaria->frequencia = frequencia; // A frequência do novo nó é a soma das frequências dos nós filhos
+        unsigned char *simbolo = malloc(sizeof(unsigned char));
+        *simbolo = '*';
+        raiz_temporaria->dados = simbolo;
+        // Os filhos do novo nó são os nós que foram removidos da lista
+        raiz_temporaria->esquerda = node1; 
+        raiz_temporaria->direita = node2; 
+        raiz_temporaria->proximo = NULL; // O próximo nó é NULL, já que ele vai ser a nova cabeça da lista
+
+        Inserir_em_Ordem(no, raiz_temporaria); // Vai inserir o Nó pai na posição correta
+    }
+    Base *raiz_final = no->head; // A raiz da árvore é o único nó restante na lista encadeada
+    no->head = NULL; // A lista encadeada agora está vazia
+    no->tamanho = 0; // O tamanho da lista encadeada agora é zero
+   return raiz_final;
+}
+// Função para testar a arvore
+void imprimir_folhas_pre_ordem(Base *raiz, int nivel) {
+    if (raiz == NULL) return;
+
+    // Se for folha, imprime
+    if (raiz->esquerda == NULL && raiz->direita == NULL) {
+        printf("Símbolo: %c | Frequência: %lld | Altura: %d\n", *(unsigned char *)raiz->dados, *(long long int *)raiz->frequencia, nivel);
+    }
+    else{
+        // Percorre esquerda e direita (em ordem de pré-ordem)
+        imprimir_folhas_pre_ordem(raiz->esquerda, nivel + 1);
+        imprimir_folhas_pre_ordem(raiz->direita, nivel + 1);
+    }  
+}
+
+// Passo 4: Gerar Dicionário de Códigos ------------------------- //
+// A árvore de Huffman é percorrida em pré-ordem para gerar os códigos binários para cada símbolo.
+
+
 int main() {
-    //setlocale(LC_ALL, "Portuguese"); // Define a localidade para português
+    setlocale(LC_ALL, "Portuguese"); // Define a localidade para português
     printf("Digite o nome do arquivo a ser compactado: ");
     // Aloca memória para o nome do arquivo
     char *nome_arquivo = calloc(FILENAME_MAX, sizeof(char));
@@ -146,7 +219,6 @@ int main() {
     unsigned int tabela_frequencia[TAMANHO_MAX]; // Tabela de frequências
     Inicializar_Tabela(tabela_frequencia); // Inicializa a tabela de frequências com zero
     Definir_Tabela_Freq(arquivo, tabela_frequencia); // Preenche a tabela de frequências
-    fclose(arquivo); // Fecha o arquivo
     imprimir_tabela(tabela_frequencia); // Imprime a tabela de frequências
     // --------------------- //
 
@@ -155,9 +227,14 @@ int main() {
     Criar_Lista_Encadeada(&lista); // Inicializa a lista encadeada
     Preencher_Lista_Encadeada(&lista, tabela_frequencia); // Preenche a lista encadeada com os nós criados a partir da tabela de frequências
     imprimir_lista(&lista); // Imprime a lista encadeada
+    fclose(arquivo); // Fecha o arquivo
     // --------------------- //
 
-
+    // Teste do passo 3: Montar a árvore de Huffman
+    printf("Árvore de Huffman\n");
+    Base *HuffTree = Construir_Arvore_de_Huffman(&lista); // Constrói a árvore de Huffman
+    imprimir_folhas_pre_ordem(HuffTree, 0); // Imprime a árvore de Huffman em pré-ordem
+    // --------------------- //
 
 
     return 0;
