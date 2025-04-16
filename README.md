@@ -2,11 +2,11 @@
 
 # Projeto final da disciplina de Estrutura de Dados
 
-Instituto de Computação - Universidade Federal de Alagoas
+-> Instituto de Computação - Universidade Federal de Alagoas
 
-Prof. Márcio Ribeiro
+-> Prof. Márcio Ribeiro
 
-Alunos: Larissa Ferreira, Otávio Menezes e Zilderlan Santos.
+-> Alunos: Larissa Ferreira, Otávio Menezes e Zilderlan Santos.
 
 O projeto é dividido em quatro partes:
 
