@@ -44,7 +44,7 @@ void Definir_Tabela_Freq(FILE *arquivo, unsigned int *tab_frequencia) {
 
 // Função para testes
 void imprimir_tabela(unsigned int *tabela) {
-    printf("Tabela de Frequências:\n");
+    printf("Tabela de Frequencias:\n");
     for (int i = 0; i < TAMANHO_MAX; i++) {
         if (tabela[i] > 0) {
             printf("Simbolo: %c, Frequencia: %u\n", i, tabela[i]);
@@ -114,7 +114,7 @@ void imprimir_lista(Lista *l) {
     printf("Lista Encadeada:\n");
     printf("Tamanho da lista: %d\n", l->tamanho); // Imprime o tamanho da lista
     while (atual != NULL) { // Enquanto o ponteiro atual não for NULL
-        printf("Símbolo: %c, Frequência: %lld\n", *(unsigned char *)atual->dados, *(long long int *)atual->frequencia);// Imprime o símbolo e a frequência
+        printf("Simbolo: %c, Frequencia: %lld\n", *(unsigned char *)atual->dados, *(long long int *)atual->frequencia);// Imprime o símbolo e a frequência
         atual = atual->proximo; // Avança para o próximo nó
     }
 }
@@ -139,12 +139,13 @@ Base* Pegar_Node_Inicial(Lista *l) {
     }
     return temp; // Retorna o nó da cabeça da lista
 }
-// Recebe a lista e constrói a árvore de Huffman, retornando a raiz da árvore
+// Recebe a lista e constrói a árvore de Huffman, retornando a raiz da árvore   
 Base* Construir_Arvore_de_Huffman(Lista *no){
-
+    Base *node1;
+    Base *node2; 
     while(no->tamanho > 1) {
-        Base *node1 = Pegar_Node_Inicial(no); 
-        Base *node2 = Pegar_Node_Inicial(no); 
+         node1 = Pegar_Node_Inicial(no); 
+         node2 = Pegar_Node_Inicial(no); 
 
         // Cria um novo nó que vai ser a raiz da árvore
         Base *raiz_temporaria = malloc(sizeof(Base)); // Aloca memória para o novo nó
@@ -179,7 +180,7 @@ void imprimir_folhas_pre_ordem(Base *raiz, int nivel) {
 
     // Se for folha, imprime
     if (raiz->esquerda == NULL && raiz->direita == NULL) {
-        printf("Símbolo: %c | Frequência: %lld | Altura: %d\n", *(unsigned char *)raiz->dados, *(long long int *)raiz->frequencia, nivel);
+        printf("Simbolo: %c | Frequencia: %lld | Altura: %d\n", *(unsigned char *)raiz->dados, *(long long int *)raiz->frequencia, nivel);
     }
     else{
         // Percorre esquerda e direita (em ordem de pré-ordem)
@@ -187,10 +188,56 @@ void imprimir_folhas_pre_ordem(Base *raiz, int nivel) {
         imprimir_folhas_pre_ordem(raiz->direita, nivel + 1);
     }  
 }
-
 // Passo 4: Gerar Dicionário de Códigos ------------------------- //
 // A árvore de Huffman é percorrida em pré-ordem para gerar os códigos binários para cada símbolo.
 
+// A função recebe a raiz da árvore e retorna a altura da mesma (Entender melhor essa função)
+int Calcular_Altura_Arvore(Base *raiz){
+    if (raiz == NULL) return 0; // Se a raiz for nula, retorna 0
+    // Processo recursivo para verificar a altura da árvore
+    int altura_esquerda = Calcular_Altura_Arvore(raiz->esquerda) + 1; // Soma 1 porque foi percorrida uma aresta pra fazer isso
+    int altura_direita = Calcular_Altura_Arvore(raiz->direita) + 1; 
+    // Verifica qual é a maior altura e retorna ela
+    return (altura_esquerda > altura_direita) ? altura_esquerda : altura_direita;
+}
+
+// rever essa função depois (VER O PRIMEIRO CALLOC)
+// recebe a altura da arvore somada mais 1 que resulta no numero total de colunas da matriz do dicionario. Vai retornar o dicionario inicializado antes de preenche-lo.
+char** Definir_Dicionario(int colunas){
+    char **dicionario = calloc(TAMANHO_MAX, sizeof(char*)); // Aloca memória para 256 ponteiros de char (um para cada símbolo ASCII possível)
+    for (int i = 0; i < TAMANHO_MAX; i++) {
+        dicionario[i] = calloc(colunas, sizeof(char)); // Aloca memória para a string do código binário do símbolo i (com espaço para colunas caracteres + '\0'
+    }
+    return dicionario; // Retorna o dicionário inicializado
+}
+// Essa função vai preencher o dicionario com os simbolos e os respectivos codigos binarios. Ela vai receber a raiz da arvore, o dicionario, o codigo a ser formado(caminho) e o numero de colunas
+// A função retorna o dicionário preenchido. (Entender bem essa função depois)
+void** Completar_Dicionario(Base* raiz, char** dicionario, char *codigo, int colunas){
+    if (raiz == NULL) return; 
+
+    // Se for folha, preenche o dicionário com o símbolo e o código binário
+    if (raiz->esquerda == NULL && raiz->direita == NULL) {
+        strcpy(dicionario[*(unsigned char *)raiz->dados], codigo); // Copia o código binário para uma linha do dicionário
+    } else {
+        // Percorre a árvore para gerar os códigos binários
+        char codigo_esquerda[colunas]; // Array auxiliar para armazenar o código da esquerda
+        char codigo_direita[colunas]; // Array auxiliar para armazenar o código da direita
+        // Se andarmos pra esquerda, adicionamos '0' ao código, se andarmos pra direita, adicionamos '1'
+        snprintf(codigo_esquerda, sizeof(codigo_esquerda), "%s0", codigo); // Adiciona '0' ao código da esquerda
+        snprintf(codigo_direita, sizeof(codigo_direita), "%s1", codigo); // Adiciona '1' ao código da direita
+        Completar_Dicionario(raiz->esquerda, dicionario, codigo_esquerda, colunas); // Chama recursivamente para a esquerda
+        Completar_Dicionario(raiz->direita, dicionario, codigo_direita, colunas); // Chama recursivamente para a direita
+    }
+}
+
+void imprime_dicionario(char** dicionario){
+    printf("Dicionario:\n");
+    for (int i = 0; i < TAMANHO_MAX; i++) {
+        if (dicionario[i][0] != '\0') { // Verifica se o símbolo tem um código associado
+            printf("Simbolo: %c, Codigo: %s\n", i, dicionario[i]); // Imprime o símbolo e o código binário
+        }
+    }
+}
 
 int main() {
     setlocale(LC_ALL, "Portuguese"); // Define a localidade para português
@@ -231,10 +278,16 @@ int main() {
     // --------------------- //
 
     // Teste do passo 3: Montar a árvore de Huffman
-    printf("Árvore de Huffman\n");
+    printf("Arvore de Huffman\n");
     Base *HuffTree = Construir_Arvore_de_Huffman(&lista); // Constrói a árvore de Huffman
     imprimir_folhas_pre_ordem(HuffTree, 0); // Imprime a árvore de Huffman em pré-ordem
     // --------------------- //
+
+    // Teste do passo 4: Gerar Dicionario
+    int altura = Calcular_Altura_Arvore(HuffTree); // Calcula a altura da árvore de Huffman
+    char **dicionario = Definir_Dicionario(altura + 1); // Cria o dicionário de códigos binários
+    Completar_Dicionario(HuffTree, dicionario, "", altura + 1); // Preenche o dicionário com os códigos binários
+    imprime_dicionario(dicionario); // Imprime o dicionário de códigos binários
 
 
     return 0;
