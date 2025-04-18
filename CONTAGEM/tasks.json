@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compilar e Executar C - (Avisar sobre MATLAB Online)",
+            "type": "shell",
+            "command": "gcc -o comparacao comparacao.c; if ($?) { ./comparacao.exe; if ($?) { echo '✅ Programa executado! Agora abra MATLAB Online e rode plotar.m!' } }",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Abrir MATLAB Online",
+            "type": "shell",
+            "command": "start https://matlab.mathworks.com",
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            },
+            "problemMatcher": []
+        }
+    ]
+}
