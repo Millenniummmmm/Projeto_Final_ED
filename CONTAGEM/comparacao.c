@@ -113,13 +113,13 @@ int main(){
     for(int i = 0; i < EXECUCOES; i++){
         printf("\tInserindo %d elementos aleatorios nas duas estruturas:\n", MAX);
         for(int j = 0; j < MAX; j++){
-            int num = rand() % 100; 
+            int num = rand() % 500; 
 
             lista = inserirLista(lista, num);
             arvore = inserirArvore(arvore, num);
         }
 
-        int num_proc = rand() % 100; 
+        int num_proc = rand() % 500; 
         int comp_A = 0, comp_L = 0; 
 
         int encontrou_A = busca_arvore(arvore, num_proc, &comp_A);
