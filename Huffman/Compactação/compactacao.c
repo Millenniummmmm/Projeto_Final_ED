@@ -213,7 +213,7 @@ char** Definir_Dicionario(int colunas){
 // Essa função vai preencher o dicionario com os simbolos e os respectivos codigos binarios. Ela vai receber a raiz da arvore, o dicionario, o codigo a ser formado(caminho) e o numero de colunas
 // A função retorna o dicionário preenchido. (Entender bem essa função depois)
 void** Completar_Dicionario(Base* raiz, char** dicionario, char *codigo, int colunas){
-    if (raiz == NULL) return; 
+    if (raiz == NULL) return NULL; 
 
     // Se for folha, preenche o dicionário com o símbolo e o código binário
     if (raiz->esquerda == NULL && raiz->direita == NULL) {
@@ -239,56 +239,142 @@ void imprime_dicionario(char** dicionario){
     }
 }
 
+// Passo 5 : Codificar o arquivo ------------------------- //
+// Recebe o arquivo e o dicionário e retorna o código binário gerado
+// A função lê o arquivo byte a byte e concatena os códigos binários correspondentes no dicionário
+char* Codificar_Arquivo(unsigned char* dados, long long tamanhoArquivo, char** dicionario) {
+    long long tamanho_bits = 0;
+    for (long long i = 0; i < tamanhoArquivo; i++) {
+        tamanho_bits += strlen(dicionario[dados[i]]);
+    }
+
+    char *codigo_binario = calloc(tamanho_bits + 1, sizeof(char));
+    if (!codigo_binario) {
+        perror("Erro ao alocar memória para código binário");
+        exit(EXIT_FAILURE);
+    }
+
+    char *ptr = codigo_binario;
+    for (long long i = 0; i < tamanhoArquivo; i++) {
+        const char* cod = dicionario[dados[i]];
+        memcpy(ptr, cod, strlen(cod));
+        ptr += strlen(cod);
+    }
+
+    *ptr = '\0';
+    return codigo_binario;
+}
+
+
+// (teste)
+void decodificar(char *codigo_binario, Base *raiz) {
+    int i = 0; // Inicializa o índice do código binário
+       Base *atual = raiz; // Inicializa o ponteiro atual na raiz da árvore
+       while(codigo_binario[i] != '\0') { // Enquanto não chegar ao final do código binário
+           if (codigo_binario[i] == '0') { // Se o bit for '0', vai para a esquerda
+               atual = atual->esquerda;
+           } else { // Se o bit for '1', vai para a direita
+               atual = atual->direita;
+           }
+           // Se for uma folha, imprime o símbolo e volta para a raiz
+           if (atual->esquerda == NULL && atual->direita == NULL) {
+               printf("%c", *(unsigned char *)atual->dados); // Imprime o símbolo encontrado
+               atual = raiz; // Volta para a raiz da árvore
+           }
+           i++; // Avança para o próximo bit do código binário
+       }
+   printf("\n"); // Imprime uma nova linha ao final
+}
+// Função para testes
+void imprimir_codigo_binario(char *codigo_binario) {
+    printf("Codigo Binario:\n%s\n", codigo_binario); // Imprime o código binário
+}
+
+// Parte 6 : COMPACTAR (Provavelmente errado)
+void Compactar_Arquivo(char *codigo_binario, long long int tamanho_bits) {
+    FILE *arquivo = fopen("C:\\Huffman\\compactado.huff", "wb");
+    if (arquivo == NULL) {
+        perror("Erro ao abrir o arquivo para escrita.\n");
+        return;
+    }
+
+    int j = 7;
+    unsigned char byte = 0;
+
+    for (long long int i = 0; i < tamanho_bits; i++) {
+        if (codigo_binario[i] == '1') {
+            byte |= (1 << j);
+        }
+        j--;
+
+        if (j < 0) {
+            fwrite(&byte, 1, 1, arquivo);
+            byte = 0;
+            j = 7;
+        }
+    }
+
+    if (j != 7) {
+        fwrite(&byte, 1, 1, arquivo); // Escreve o último byte incompleto
+    }
+
+    fclose(arquivo);
+
+    int lixo = (8 - (tamanho_bits % 8)) % 8;
+
+    printf("Arquivo compactado com sucesso!\n");
+    printf("Tamanho real esperado do código em bytes: %lld bytes\n", (tamanho_bits + 7) / 8);
+    printf("Bits totais: %lld | Bits lixo no final: %d\n", tamanho_bits, lixo);
+}
+
+// SÓ FUNCIONA PARA TEXTO POR ENQUANTO. ESTÁ SEM O CABEÇALHO TBM, OU SEJA, NÃO DÁ PRA DESCOMPACTAR AINDA
 int main() {
-    setlocale(LC_ALL, "Portuguese"); // Define a localidade para português
+    setlocale(LC_ALL, "pt_BR.UTF-8");
+
+    char nome_arquivo[FILENAME_MAX];
     printf("Digite o nome do arquivo a ser compactado: ");
-    // Aloca memória para o nome do arquivo
-    char *nome_arquivo = calloc(FILENAME_MAX, sizeof(char));
     scanf(" %[^\n]", nome_arquivo);
 
-    // Caminho base
-    const char *caminho_base = "C:\\Huffman\\";
-    
-    // String final com caminho completo
     char caminho_completo[FILENAME_MAX];
-    snprintf(caminho_completo, FILENAME_MAX, "%s%s", caminho_base, nome_arquivo); // Concatena o caminho base com o nome do arquivo
+    snprintf(caminho_completo, FILENAME_MAX, "C:\\Huffman\\%s", nome_arquivo);
 
-    // Tenta abrir o arquivo
     FILE *arquivo = fopen(caminho_completo, "rb");
-
-    if (arquivo == NULL) {
-        perror("Erro ao abrir o arquivo.\n");
+    if (!arquivo) {
+        perror("Erro ao abrir o arquivo");
         return 1;
     }
 
-    // ----- Testes ----- //
-    // Teste do passo 1: Tabela de Frequências
-    unsigned int tabela_frequencia[TAMANHO_MAX]; // Tabela de frequências
-    Inicializar_Tabela(tabela_frequencia); // Inicializa a tabela de frequências com zero
-    Definir_Tabela_Freq(arquivo, tabela_frequencia); // Preenche a tabela de frequências
-    imprimir_tabela(tabela_frequencia); // Imprime a tabela de frequências
-    // --------------------- //
+    // Passo 1: Frequência
+    unsigned int tabela_frequencia[TAMANHO_MAX];
+    Inicializar_Tabela(tabela_frequencia);
+    Definir_Tabela_Freq(arquivo, tabela_frequencia);
+    rewind(arquivo);
 
-    // Teste do passo 2: Lista Encadeada
-    Lista lista; // Declara a lista encadeada
-    Criar_Lista_Encadeada(&lista); // Inicializa a lista encadeada
-    Preencher_Lista_Encadeada(&lista, tabela_frequencia); // Preenche a lista encadeada com os nós criados a partir da tabela de frequências
-    imprimir_lista(&lista); // Imprime a lista encadeada
-    fclose(arquivo); // Fecha o arquivo
-    // --------------------- //
+    // Passo 2: Lista Encadeada
+    Lista lista;
+    Criar_Lista_Encadeada(&lista);
+    Preencher_Lista_Encadeada(&lista, tabela_frequencia);
 
-    // Teste do passo 3: Montar a árvore de Huffman
-    printf("Arvore de Huffman\n");
-    Base *HuffTree = Construir_Arvore_de_Huffman(&lista); // Constrói a árvore de Huffman
-    imprimir_folhas_pre_ordem(HuffTree, 0); // Imprime a árvore de Huffman em pré-ordem
-    // --------------------- //
+    // Passo 3: Árvore de Huffman
+    Base *HuffTree = Construir_Arvore_de_Huffman(&lista);
 
-    // Teste do passo 4: Gerar Dicionario
-    int altura = Calcular_Altura_Arvore(HuffTree); // Calcula a altura da árvore de Huffman
-    char **dicionario = Definir_Dicionario(altura + 1); // Cria o dicionário de códigos binários
-    Completar_Dicionario(HuffTree, dicionario, "", altura + 1); // Preenche o dicionário com os códigos binários
-    imprime_dicionario(dicionario); // Imprime o dicionário de códigos binários
+    // Passo 4: Dicionário
+    int altura = Calcular_Altura_Arvore(HuffTree);
+    char **dicionario = Definir_Dicionario(altura + 1);
+    Completar_Dicionario(HuffTree, dicionario, "", altura + 1);
 
+    // Passo 5: Leitura dos dados
+    fseek(arquivo, 0, SEEK_END);
+    long long tamanhoArquivo = ftell(arquivo);
+    rewind(arquivo);
+    unsigned char *dados = malloc(tamanhoArquivo);
+    fread(dados, 1, tamanhoArquivo, arquivo);
+    fclose(arquivo);
+
+    // Passo 6: Codificação e Compactação
+    char *codigo_binario = Codificar_Arquivo(dados, tamanhoArquivo, dicionario);
+    long long tamanho_bits = strlen(codigo_binario);
+    Compactar_Arquivo(codigo_binario, tamanho_bits);
 
     return 0;
 }
