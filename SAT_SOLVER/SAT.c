@@ -33,6 +33,7 @@ typedef struct Arvore{
     struct Arvore *dir; //f (-1)
 }Arvore;
 
+// ---------- LEITURA DOS DADOS ----------
 void ler_arquivo(const char *nome_arq, CNF *expressao){
     //printf("Tentando abrir: %s\n", nome_arq); //debug
     FILE *arquivo = fopen(nome_arq, "r"); //r porque é read
@@ -71,10 +72,11 @@ void ler_arquivo(const char *nome_arq, CNF *expressao){
         expressao -> clausulas[indice++] = cl; //adiciona a clausula no vetor
     }
 
-    expressao -> num_clausulas = indice; //corrige o número real de cláusulas
+    expressao -> num_clausulas = indice; //corrige o número real de cláusulas (pode colocar errado na entrada)
     fclose(arquivo);
 }
 
+// ---------- VERIFICAR CLAUSULA ----------
 int verificar_cnf(CNF *cnf, int atribuicoes[]){ //analisa se alguma atribuicao parcial satisfaz a expressao
     bool todas_satisfeitas = true;
 
@@ -104,6 +106,7 @@ int verificar_cnf(CNF *cnf, int atribuicoes[]){ //analisa se alguma atribuicao p
     return todas_satisfeitas ? SATISFEITA : INDEFINIDA;
 } 
 
+// ---------- ANALISA SE É SAT ----------
 bool sat(Arvore *no, CNF *expressao, int solucao[]){
     int estado = verificar_cnf(expressao, no -> atribuicoes);
 
@@ -153,11 +156,13 @@ bool sat(Arvore *no, CNF *expressao, int solucao[]){
     free(esq);
     free(dir);
     return false;
-
 } 
 
+// ---------- FUNCAO PRINCIPAL ----------
 int main(){
     //zerando todos os itens
+    setlocale(LC_ALL, "Portuguese");
+
     CNF expressao = {0}; 
     struct Arvore raiz = {0};
     int solucao[MAX_VAR] = {0};
@@ -168,11 +173,34 @@ int main(){
         raiz.atribuicoes[i] = 0;
 
     if(sat(&raiz, &expressao, solucao)){ //chama a funcao recursiva
-        printf("\tSAT!\n");
+        printf("\033[1;32m");
+        printf("\n");
+        printf("\t========================\n");
+        printf("\t||        SAT!        ||\n");
+        printf("\t========================\n");
+        printf("\n");
+        printf("\033[0m");
+
+        printf("\033[1;34m"); 
+        printf("\t +-------------------+\n");
+        printf("\t | Variavel |  Valor |\n");
+        printf("\t +-------------------+\n");
+
         for(int i = 1; i <= expressao.num_variaveis; i++)
-            printf("\t%d = %d\n", i, solucao[i] == 1 ? 1 : 0);
+            printf("\t |     %d    |    %d   |\n", i, solucao[i] == 1 ? 1 : 0);
+
+        printf("\t +-------------------+\n");
+        printf("\033[0m"); 
+        printf("\n");
     }
-    else
-        printf("UNSAT!");    
+    else{
+        printf("\033[1;31m"); 
+        printf("\n");
+        printf("\t========================\n");
+        printf("\t||       UNSAT!       ||\n");
+        printf("\t========================\n");
+        printf("\n");
+        printf("\033[0m");
+    }
     return 0;
 }
