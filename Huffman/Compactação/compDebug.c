@@ -410,7 +410,7 @@ void Compactar_Arquivo(char *codigo_binario, long long int tamanho_bits, Base *H
 
     // Quebra o cabeçalho em 2 bytes (big endian)
     unsigned char byte1 = cabecalho >> 8;      // bits mais significativos
-    unsigned char byte2 = cabecalho & 0xFF;    // bits menos significativos
+    unsigned char byte2 = cabecalho % 256;    // bits menos significativos
 
     // Agora escreve no arquivo:
     fwrite(&byte1, 1, 1, arquivo);
@@ -418,13 +418,13 @@ void Compactar_Arquivo(char *codigo_binario, long long int tamanho_bits, Base *H
     fwrite(arvore_serializada, 1, tam_arvore, arquivo);
 
     printf("\n--- DEBUG DO CABEÇALHO ---\n");
-printf("Byte 1 (lixo + parte alta do tam_arvore): ");
-Printar_Byte_em_Binario(byte1);
-printf("  (0x%02X)\n", byte1);
+    printf("Byte 1 (lixo + parte alta do tam_arvore): ");
+    Printar_Byte_em_Binario(byte1);
+    printf("  (0x%02X)\n", byte1);
 
-printf("Byte 2 (parte baixa do tam_arvore):        ");
-Printar_Byte_em_Binario(byte2);
-printf("  (0x%02X)\n", byte2);
+    printf("Byte 2 (parte baixa do tam_arvore):        ");
+    Printar_Byte_em_Binario(byte2);
+    printf("  (0x%02X)\n", byte2);
 
 // Mostra os primeiros caracteres da árvore serializada
 printf("Início da árvore serializada: \"");
