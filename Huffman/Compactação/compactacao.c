@@ -25,7 +25,7 @@ typedef struct Lista{
 
 // ------------------------- Compactação ------------------------- //
 
-// Primeiro Passo: Tabela de Frequências ------------------------- //
+// Etapa 1 : Tabela de Frequências ------------------------- //
 
 // Cria a tabela de frequências e inicializa com zero
 void Inicializar_Tabela(unsigned int *tabela){
@@ -38,7 +38,7 @@ void Inicializar_Tabela(unsigned int *tabela){
 void Definir_Tabela_Freq(FILE *arquivo, unsigned int *tab_frequencia) {
     unsigned char index = 0; 
     while (fread(&index, 1, 1, arquivo) == 1) { // Lê o arquivo byte a byte
-        tab_frequencia[index]++; // Incrementa a frequência do símbolo lido, preechendo a tabela
+        tab_frequencia[(unsigned char)index]++; // Incrementa a frequência do símbolo lido, preechendo a tabela
     }
 }
 
@@ -52,7 +52,7 @@ void imprimir_tabela(unsigned int *tabela) {
     }
 }
 
-// Segundo Passo: Listas Encadeadas Ordenadas ------------------------- //
+// Etapa 2 : Listas Encadeadas Ordenadas ------------------------- //
 
 // Inicializa a lista
 void Criar_Lista_Encadeada(Lista *l) {
@@ -71,7 +71,7 @@ void Inserir_em_Ordem(Lista *l, Base *base){
     }  
  
     Base *atual = l->head; // Inicializa um ponteiro auxiliar para percorrer a lista
-    while(atual->proximo != NULL && *(long long int *)atual->proximo->frequencia <= *(long long int *)base->frequencia){
+    while(atual->proximo != NULL && *(long long int *)atual->proximo->frequencia < *(long long int *)base->frequencia){
         atual = atual->proximo; // Percorre a lista até encontrar a posição correta
     }
     base->proximo = atual->proximo; // Insere o nó na posição correta
@@ -114,13 +114,13 @@ void imprimir_lista(Lista *l) {
     printf("Lista Encadeada:\n");
     printf("Tamanho da lista: %d\n", l->tamanho); // Imprime o tamanho da lista
     while (atual != NULL) { // Enquanto o ponteiro atual não for NULL
-        printf("Simbolo: %c, Frequencia: %lld\n", *(unsigned char *)atual->dados, *(long long int *)atual->frequencia);// Imprime o símbolo e a frequência
+        printf("Simbolo: %c, Frequencia: %I64d\n", *(unsigned char *)atual->dados, *(long long int *)atual->frequencia);// Imprime o símbolo e a frequência
         atual = atual->proximo; // Avança para o próximo nó
     }
 }
 
 
-// Terceiro passo: Montar a árvore de Huffman ------------------------- //
+// Etapa 3 : Montar a árvore de Huffman ------------------------- //
 
 /* 
 A árvore de Huffman é uma árvore binária onde cada nó interno tem dois filhos e cada folha representa um símbolo.
@@ -157,6 +157,8 @@ Base* Construir_Arvore_de_Huffman(Lista *no){
         // Aloca memória para a frequência e soma as frequências dos nós filhos
         long long int *frequencia = malloc(sizeof(long long int));
         *frequencia = *(long long int *)node1->frequencia + *(long long int *)node2->frequencia;
+
+
         //printf("Frequência: %lld\n", *frequencia); // Imprime a frequência do nó pai
         raiz_temporaria->frequencia = frequencia; // A frequência do novo nó é a soma das frequências dos nós filhos
         unsigned char *simbolo = malloc(sizeof(unsigned char));
@@ -168,19 +170,21 @@ Base* Construir_Arvore_de_Huffman(Lista *no){
         raiz_temporaria->proximo = NULL; // O próximo nó é NULL, já que ele vai ser a nova cabeça da lista
 
         Inserir_em_Ordem(no, raiz_temporaria); // Vai inserir o Nó pai na posição correta
+        
     }
     Base *raiz_final = no->head; // A raiz da árvore é o único nó restante na lista encadeada
     no->head = NULL; // A lista encadeada agora está vazia
     no->tamanho = 0; // O tamanho da lista encadeada agora é zero
    return raiz_final;
 }
+
 // Função para testar a arvore
 void imprimir_folhas_pre_ordem(Base *raiz, int nivel) {
     if (raiz == NULL) return;
 
     // Se for folha, imprime
     if (raiz->esquerda == NULL && raiz->direita == NULL) {
-        printf("Simbolo: %c | Frequencia: %lld | Altura: %d\n", *(unsigned char *)raiz->dados, *(long long int *)raiz->frequencia, nivel);
+        printf("Simbolo: %c | Frequencia: %I64d | Altura: %d\n", *(unsigned char *)raiz->dados, *(long long int *)raiz->frequencia, nivel);
     }
     else{
         // Percorre esquerda e direita (em ordem de pré-ordem)
@@ -188,7 +192,9 @@ void imprimir_folhas_pre_ordem(Base *raiz, int nivel) {
         imprimir_folhas_pre_ordem(raiz->direita, nivel + 1);
     }  
 }
-// Passo 4: Gerar Dicionário de Códigos ------------------------- //
+// Etapa 4 : Gerar Dicionário de Códigos ------------------------- //
+
+
 // A árvore de Huffman é percorrida em pré-ordem para gerar os códigos binários para cada símbolo.
 
 // A função recebe a raiz da árvore e retorna a altura da mesma (Entender melhor essa função)
@@ -212,8 +218,8 @@ char** Definir_Dicionario(int colunas){
 }
 // Essa função vai preencher o dicionario com os simbolos e os respectivos codigos binarios. Ela vai receber a raiz da arvore, o dicionario, o codigo a ser formado(caminho) e o numero de colunas
 // A função retorna o dicionário preenchido. (Entender bem essa função depois)
-void** Completar_Dicionario(Base* raiz, char** dicionario, char *codigo, int colunas){
-    if (raiz == NULL) return NULL; 
+void Completar_Dicionario(Base* raiz, char** dicionario, char *codigo, int colunas){
+    if (raiz == NULL) return; 
 
     // Se for folha, preenche o dicionário com o símbolo e o código binário
     if (raiz->esquerda == NULL && raiz->direita == NULL) {
@@ -239,7 +245,35 @@ void imprime_dicionario(char** dicionario){
     }
 }
 
-// Passo 5 : Codificar o arquivo ------------------------- //
+// Etapa 5 : Funções para o cabeçalho ----------------------------- //
+
+char* Decimal_para_Binario(int Decimal, int tamanho_necessario){
+    char *binario = malloc(tamanho_necessario + 1); // Aloca memória para n bits + '\0'
+    if (!binario) {
+        perror("Erro ao alocar memória para a conversão de decimal para binário.\n");
+        exit(EXIT_FAILURE); // Encerra o programa se a alocação falhar
+    }
+    binario[tamanho_necessario] = '\0'; // Adiciona o terminador de string
+    for (int i = tamanho_necessario - 1; i >= 0; i--) { // Converte o decimal para binário
+        binario[i] = (Decimal % 2) + '0'; // Adiciona '0' ou '1' ao array
+        Decimal /= 2; // Divide por 2 para obter o próximo bit
+    }
+    return binario; // Retorna a string binária
+}
+
+int Calcular_Lixo(){
+
+}
+
+char* Arvore_Pre_Ordem(Base* raiz) {
+ 
+}
+
+int Calcular_Tamanho_Arvore(Base* raiz) {
+ 
+}
+
+// Etapa 6 : Codificação e Compactação ------------------------- //
 // Recebe o arquivo e o dicionário e retorna o código binário gerado
 // A função lê o arquivo byte a byte e concatena os códigos binários correspondentes no dicionário
 char* Codificar_Arquivo(unsigned char* dados, long long tamanhoArquivo, char** dicionario) {
@@ -291,12 +325,18 @@ void imprimir_codigo_binario(char *codigo_binario) {
 }
 
 // Parte 6 : COMPACTAR (Provavelmente errado)
+// Recebe o código binário e o tamanho em bits e compacta o arquivo
+// A função escreve o código binário em um arquivo binário, byte a byte
+// Manipulação de bits
 void Compactar_Arquivo(char *codigo_binario, long long int tamanho_bits) {
     FILE *arquivo = fopen("C:\\Huffman\\compactado.huff", "wb");
     if (arquivo == NULL) {
         perror("Erro ao abrir o arquivo para escrita.\n");
         return;
     }
+    //Antes de escrever a parte compactada, precisamos escrever o cabeçalho
+    // O cabeçalho vai consistir em 3 bits para o tamanho do lixo, 13 bits para o tamanho da arvore e a arvore serializada em pre ordem.
+    // Vamos usar fwrite para escrever os bytes correspondentes ao cabeçalho no começo do arquivo.
 
     int j = 7;
     unsigned char byte = 0;
@@ -323,8 +363,8 @@ void Compactar_Arquivo(char *codigo_binario, long long int tamanho_bits) {
     int lixo = (8 - (tamanho_bits % 8)) % 8;
 
     printf("Arquivo compactado com sucesso!\n");
-    printf("Tamanho real esperado do código em bytes: %lld bytes\n", (tamanho_bits + 7) / 8);
-    printf("Bits totais: %lld | Bits lixo no final: %d\n", tamanho_bits, lixo);
+    printf("Tamanho real esperado do código em bytes: %I64d bytes\n", (tamanho_bits + 7) / 8);
+    printf("Bits totais: %I64d | Bits lixo no final: %d\n", tamanho_bits, lixo);
 }
 
 // SÓ FUNCIONA PARA TEXTO POR ENQUANTO. ESTÁ SEM O CABEÇALHO TBM, OU SEJA, NÃO DÁ PRA DESCOMPACTAR AINDA
@@ -348,6 +388,7 @@ int main() {
     unsigned int tabela_frequencia[TAMANHO_MAX];
     Inicializar_Tabela(tabela_frequencia);
     Definir_Tabela_Freq(arquivo, tabela_frequencia);
+    imprimir_tabela(tabela_frequencia); // Imprime a tabela de frequências para testes
     rewind(arquivo);
 
     // Passo 2: Lista Encadeada
@@ -357,11 +398,19 @@ int main() {
 
     // Passo 3: Árvore de Huffman
     Base *HuffTree = Construir_Arvore_de_Huffman(&lista);
+    printf("\n--- Árvores folhas em pré-ordem ---\n");
+    imprimir_folhas_pre_ordem(HuffTree, 0);
+
 
     // Passo 4: Dicionário
     int altura = Calcular_Altura_Arvore(HuffTree);
     char **dicionario = Definir_Dicionario(altura + 1);
     Completar_Dicionario(HuffTree, dicionario, "", altura + 1);
+    for (int i = 0; i < 256; i++) {
+        if (dicionario[i][0] != '\0') {
+            printf("Byte %3d | Huffman: %s | %I64u bits\n", i, dicionario[i], strlen(dicionario[i]));
+        }
+    }
 
     // Passo 5: Leitura dos dados
     fseek(arquivo, 0, SEEK_END);
