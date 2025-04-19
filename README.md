@@ -6,7 +6,7 @@
 
 -> Prof. Márcio Ribeiro
 
--> Alunos: Larissa Ferreira, Otávio Menezes e Zilderlan Santos.
+-> Alunos: Larissa de Souza, Otávio Menezes e Zilderlan Santos.
 
 O projeto é dividido em quatro partes:
 
