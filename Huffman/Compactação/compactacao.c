@@ -5,8 +5,10 @@
 #include <math.h>
 #include <stdbool.h>
 #include <locale.h>
+#include <windows.h> // Para a função Sleep
+#include <time.h> 
 
-#define TAMANHO_MAX 256
+#define TAMANHO_MAX 256 
 
 // Estrutura de Dados principal 
 
@@ -25,20 +27,43 @@ typedef struct Lista{
     int tamanho;
 }Lista;
 
-
-void Menu_Principal() {
-
-    printf("\t========================\n");
-    printf("\tAlgoritmo de Huffman\n");
-    printf("\t========================\n\n");
-    printf("\tSelecione o que deseja fazer:\n");
-    printf("\t1. Compactar arquivo\n");
-    printf("\t2. Descompactar arquivo\n");
-    printf("\t3. Sair\n");
-
+void Huffman() {
+    printf("\n\n\n");
+    printf("\033[1;34m");
+    printf("\t██╗  ██╗██╗   ██╗███████╗███████╗███╗   ███╗ █████╗ ███╗   ██╗\n");
+    printf("\t██║  ██║██║   ██║██╔════╝██╔════╝████╗ ████║██╔══██╗████╗  ██║\n");
+    printf("\t███████║██║   ██║█████╗  █████╗  ██╔████╔██║███████║██╔██╗ ██║\n");
+    printf("\t██╔══██║██║   ██║██╔══╝  ██╔══╝  ██║╚██╔╝██║██╔══██║██║╚██╗██║\n");
+    printf("\t██║  ██║╚██████╔╝██║     ██║     ██║ ╚═╝ ██║██║  ██║██║ ╚████║\n");
+    printf("\t╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚═╝     ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝\n");
+    printf("\n\n\n");
 }
 
+void Informacoes(){
+    printf("\033[1;34m");
+    printf("\t\t\t===================================\n");
+    printf("\t\t\t\t    Informações\n");
+    printf("\t\t\t===================================\n\n");
+    printf("\t\t\tEsse programa foi desenvolvido por:\n\n");
+    printf("\t\t\t\tLarissa Ferreira\n");
+    printf("\t\t\t\tOtávio Joshua\n");
+    printf("\t\t\t\tZilderlan Naty\n\n");
+    printf("\t\t\tProfessor: Márcio Ribeiro\n\n");
+    printf("\t\t\tUniversidade Federal de Alagoas\n\n");
+    printf("\033[0m");
+}
 
+void Menu_Principal() {
+    printf("\033[1;32m");
+    printf("\t\t\t=============================\n");
+    printf("\t\t\t\tMenu Principal\n");
+    printf("\t\t\t=============================\n\n");
+    printf("\t\t\tSelecione o que deseja fazer:\n");
+    printf("\t\t\t1. Compactar arquivo\n");
+    printf("\t\t\t2. Descompactar arquivo\n");
+    printf("\t\t\t3. Sair\n");
+    printf("\033[0m");
+}
 
 // ------------------------- Compactação ------------------------- //
 
@@ -176,12 +201,11 @@ Base* Construir_Arvore_de_Huffman(Lista *no){
         long long int *frequencia = malloc(sizeof(long long int));
         *frequencia = *(long long int *)node1->frequencia + *(long long int *)node2->frequencia;
 
-
-        //printf("Frequência: %lld\n", *frequencia); // Imprime a frequência do nó pai
         raiz_temporaria->frequencia = frequencia; // A frequência do novo nó é a soma das frequências dos nós filhos
         unsigned char *simbolo = malloc(sizeof(unsigned char));
         *simbolo = '*';
         raiz_temporaria->dados = simbolo;
+
         // Os filhos do novo nó são os nós que foram removidos da lista
         raiz_temporaria->esquerda = node1; 
         raiz_temporaria->direita = node2; 
@@ -353,8 +377,6 @@ char* Codificar_Arquivo(unsigned char* dados, long long tamanhoArquivo, char** d
     return codigo_binario;
 }
 
-// Parte 6 : COMPACTAR (Provavelmente errado)
-
 // Recebe o código binário e o tamanho em bits e compacta o arquivo
 // A função escreve o código binário em um arquivo binário, byte a byte
 // Manipulação de bits
@@ -424,16 +446,17 @@ void Comprimir_Dados() {
     // Abertura do arquivo
 
     char nome_arquivo[FILENAME_MAX];
+    printf("\033[1;32m");
     printf("Digite o nome do arquivo a ser compactado: ");
     scanf(" %[^\n]", nome_arquivo);
-
+    printf("\033[0m");
     char caminho_completo[FILENAME_MAX];
     snprintf(caminho_completo, FILENAME_MAX, "C:\\Huffman\\%s", nome_arquivo);
 
     FILE *arquivo = fopen(caminho_completo, "rb");
     if (!arquivo) {
         perror("Erro ao abrir o arquivo");
-        return 1;
+        return;
     }
 
     // Passo 1: Frequências
@@ -482,7 +505,18 @@ void Comprimir_Dados() {
 }
 
 int main() {
+
+    system("chcp 65001 > nul"); 
+
     setlocale(LC_ALL, "pt_BR.UTF-8");
+
+    Informacoes(); // Chama a função de informações
+    Sleep(3000);
+    system("cls"); // Limpa a tela do consol
+
+    Huffman();
+
+    while(1) {
 
     Menu_Principal(); 
 
@@ -499,12 +533,15 @@ int main() {
             printf("Descompactar arquivo ainda não implementado.\n");
             break;
         case 3:
+            printf("\033[31;31m");
             printf("Saindo...\n");
-            break;
+            exit(0);
         default:
             printf("Opção inválida.\n");
             break;
     }
+    
+}
 
     return 0;
 }
