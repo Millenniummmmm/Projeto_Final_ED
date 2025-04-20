@@ -5,7 +5,7 @@
 #include <math.h>
 #include <stdbool.h>
 #include <locale.h>
-#include <windows.h> // Para a função Sleep
+#include <windows.h> 
 #include <time.h> 
 
 #define TAMANHO_MAX 256 
@@ -148,25 +148,6 @@ void Preencher_Lista_Encadeada(Lista *l, unsigned int *tabela_frequencia) {
     }
 }
 
-// Função para testar a lista encadeada
-
-void imprimir_lista(Lista *l) {
-    Base *atual = l->head; // Inicializa um ponteiro auxiliar para percorrer a lista
-    printf("Lista Encadeada:\n");
-    printf("Tamanho da lista: %d\n", l->tamanho); // Imprime o tamanho da lista
-    while (atual != NULL) { // Enquanto o ponteiro atual não for NULL
-        printf("Simbolo: %c, Frequencia: %I64d\n", *(unsigned char *)atual->dados, *(long long int *)atual->frequencia);// Imprime o símbolo e a frequência
-        atual = atual->proximo; // Avança para o próximo nó
-    }
-}
-
-// Etapa 3 : Montar a árvore de Huffman ------------------------- //
-
-/* 
-A árvore de Huffman é uma árvore binária onde cada nó interno tem dois filhos e cada folha representa um símbolo.
-A árvore é construída a partir da tabela de frequências, onde os símbolos mais frequentes estão mais próximos da raiz e os menos frequentes estão mais distantes.
-*/
-
 // Vai receber a lista e vai retornar o inicio da lista, o no com a menor frequencia.
 
 Base* Pegar_Node_Inicial(Lista *l) {
@@ -180,6 +161,13 @@ Base* Pegar_Node_Inicial(Lista *l) {
     }
     return temp; // Retorna o nó da cabeça da lista
 }
+
+// Etapa 3 : Montar a árvore de Huffman ------------------------- //
+
+/* 
+A árvore de Huffman é uma árvore binária onde cada nó interno tem dois filhos e cada folha representa um símbolo.
+A árvore é construída a partir da tabela de frequências, onde os símbolos mais frequentes estão mais próximos da raiz e os menos frequentes estão mais distantes.
+*/
 
 // Recebe a lista e constrói a árvore de Huffman, retornando a raiz da árvore   
 
@@ -265,21 +253,6 @@ void Completar_Dicionario(Base* raiz, char** dicionario, char *codigo, int colun
 }
 
 // Etapa 5 : Funções para o cabeçalho ----------------------------- //
-
-// Não necessário agora, mas pode ser útil depois
-char* Decimal_para_Binario(int Decimal, int tamanho_necessario){
-    char *binario = malloc(tamanho_necessario + 1); // Aloca memória para n bits + '\0'
-    if (!binario) {
-        perror("Erro ao alocar memória para a conversão de decimal para binário.\n");
-        exit(EXIT_FAILURE); // Encerra o programa se a alocação falhar
-    }
-    binario[tamanho_necessario] = '\0'; // Adiciona o terminador de string
-    for (int i = tamanho_necessario - 1; i >= 0; i--) { // Converte o decimal para binário
-        binario[i] = (Decimal % 2) + '0'; // Adiciona '0' ou '1' ao array
-        Decimal /= 2; // Divide por 2 para obter o próximo bit
-    }
-    return binario; // Retorna a string binária
-}
 
 // Recebe o tamanho do codigo binario produzido pela codificacao e retorna o tamanho do lixo em decimal que vai ser adicionado no cabeçalho
 
