@@ -76,7 +76,7 @@ void ler_arquivo(const char *nome_arq, CNF *expressao){
     fclose(arquivo);
 }
 
-// ---------- VERIFICAR CLAUSULA ----------
+// ---------- VERIFICAR CADA CLAUSULA ----------
 int verificar_cnf(CNF *cnf, int atribuicoes[]){ //analisa se alguma atribuicao parcial satisfaz a expressao
     bool todas_satisfeitas = true;
 
@@ -128,7 +128,7 @@ bool sat(Arvore *no, CNF *expressao, int solucao[]){
     if(prox_variavel == -10) //nao tem vaar dispoinivel e ainda indefinida
         return false;
 
-    //tentativa pra atribuir 1
+    //tentativa pra atribuir 1 (v)
     struct Arvore *esq = malloc(sizeof(Arvore)); //cria um novo nó da a
     memcpy(esq -> atribuicoes, no -> atribuicoes, sizeof(int) * MAX_VAR); //copia as atribuicoes do nó ant para o esq
     esq -> atribuicoes[prox_variavel] = 1; //atribui 1 a proxima variavel
@@ -140,7 +140,7 @@ bool sat(Arvore *no, CNF *expressao, int solucao[]){
         return true; 
     }
 
-    //tentativa pra atribuir -1
+    //tentativa pra atribuir -1 (f)
     struct Arvore *dir = malloc(sizeof(Arvore)); 
     memcpy(dir -> atribuicoes, no -> atribuicoes, sizeof(int) * MAX_VAR);
     dir -> atribuicoes[prox_variavel] = -1; //atribui -1 (f) na proxima variavel
@@ -160,12 +160,10 @@ bool sat(Arvore *no, CNF *expressao, int solucao[]){
 
 // ---------- FUNCAO PRINCIPAL ----------
 int main(){
-    //zerando todos os itens
     system("chcp 65001 > nul");
     setlocale(LC_ALL, "pt_BR.UTF-8");
-
     
-    CNF expressao = {0}; 
+    CNF expressao = {0};     //zerando todos os itens
     struct Arvore raiz = {0};
     int solucao[MAX_VAR] = {0};
 
