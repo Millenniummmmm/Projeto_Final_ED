@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
+#include <stdbool.h>
 #include <locale.h>
 
 #define MAX_VAR 2000
@@ -161,11 +161,23 @@ bool sat(Arvore *no, CNF *expressao, int solucao[]){
 // ---------- FUNCAO PRINCIPAL ----------
 int main(){
     //zerando todos os itens
-    setlocale(LC_ALL, "Portuguese");
+    system("chcp 65001 > nul");
+    setlocale(LC_ALL, "pt_BR.UTF-8");
 
+    
     CNF expressao = {0}; 
     struct Arvore raiz = {0};
     int solucao[MAX_VAR] = {0};
+
+    printf("\033[1;34m");
+    printf("\n\n\n");
+    printf("\t   ███████╗ █████╗ ████████╗    ███████╗ ██████╗ ██╗     ██╗   ██╗███████╗██████╗ \n");
+    printf("\t   ██╔════╝██╔══██╗╚══██╔══╝    ██╔════╝██╔═══██╗██║     ██║   ██║██╔════╝██╔══██╗\n");
+    printf("\t   ███████╗███████║   ██║       ███████╗██║   ██║██║     ██║   ██║█████╗  ██████╔╝\n");
+    printf("\t   ╚════██║██╔══██║   ██║       ╚════██║██║   ██║██║     ██║   ██║██╔══╝  ██╔══██╗\n");
+    printf("\t   ███████║██║  ██║   ██║       ███████║╚██████╔╝███████╗╚██████╔╝███████╗██║  ██║\n");
+    printf("\t   ╚══════╝╚═╝  ╚═╝   ╚═╝       ╚══════╝ ╚═════╝ ╚══════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝\n");
+    printf("\033[0m");
 
     ler_arquivo("C:\\Users\\laris\\Desktop\\SAT_SOLVER\\entrada.txt", &expressao);
 
@@ -175,30 +187,30 @@ int main(){
     if(sat(&raiz, &expressao, solucao)){ //chama a funcao recursiva
         printf("\033[1;32m");
         printf("\n");
-        printf("\t========================\n");
-        printf("\t||        SAT!        ||\n");
-        printf("\t========================\n");
+        printf("\t\t\t\t\t========================\n");
+        printf("\t\t\t\t\t||        SAT!        ||\n");
+        printf("\t\t\t\t\t========================\n");
         printf("\n");
         printf("\033[0m");
 
-        printf("\033[1;34m"); 
-        printf("\t +-------------------+\n");
-        printf("\t | Variavel |  Valor |\n");
-        printf("\t +-------------------+\n");
+        printf("\033[1;37m"); 
+        printf("\t\t\t\t\t +-------------------+\n");
+        printf("\t\t\t\t\t | Variável |  Valor |\n");
+        printf("\t\t\t\t\t +-------------------+\n");
 
         for(int i = 1; i <= expressao.num_variaveis; i++)
-            printf("\t |     %d    |    %d   |\n", i, solucao[i] == 1 ? 1 : 0);
+            printf("\t\t\t\t\t |     %d    |    %d   |\n", i, solucao[i] == 1 ? 1 : 0);
 
-        printf("\t +-------------------+\n");
+        printf("\t\t\t\t\t +-------------------+\n");
         printf("\033[0m"); 
         printf("\n");
     }
     else{
         printf("\033[1;31m"); 
         printf("\n");
-        printf("\t========================\n");
-        printf("\t||       UNSAT!       ||\n");
-        printf("\t========================\n");
+        printf("\t\t\t\t\t========================\n");
+        printf("\t\t\t\t\t||       UNSAT!       ||\n");
+        printf("\t\t\t\t\t========================\n");
         printf("\n");
         printf("\033[0m");
     }
