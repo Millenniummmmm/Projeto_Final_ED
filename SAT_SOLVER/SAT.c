@@ -76,25 +76,29 @@ void ler_arquivo(const char *nome_arq, CNF *expressao){
     fclose(arquivo);
 }
 
-// ---------- VERIFICAR CADA CLAUSULA ----------
+// ---------- VERIFICAR CLAUSULA ----------
 int verificar_cnf(CNF *cnf, int atribuicoes[]){ //analisa se alguma atribuicao parcial satisfaz a expressao
     bool todas_satisfeitas = true;
 
-    for(int i = 0; i < cnf -> num_clausulas; i++){
+    for(int i = 0; i < cnf -> num_clausulas; i++){ //for para navegar clausula por clausula
         Clausula *cl = &cnf -> clausulas[i];
-        bool clausula_satisfeita = false;
-        bool indefinida = false;
+        bool clausula_satisfeita = false;  //como ainda nao viu, coloca como falso
+        bool indefinida = false; //mesma coisa de cima
 
         for(int j = 0; j < cl -> tamanho; j++){//loop pra percorrer os literais na clausula
             int literal = cl -> literais[j];
-            int variavel = abs(literal); //numero da variavel, sempre positvo
+            int variavel = abs(literal); //numero da variavel, sempre positvo pq estamos vendo o indice
             int valor = atribuicoes[variavel]; //valor atribuido: -1(falso), 0(nao atribuida) ou 1(vdd)
     
-            if(valor == 0) //nao foi atribuuida
+            if(valor == 0) //nao foi atribuuida (nao é falsa nem verdadeira)
                 indefinida = true; //marca como indefinida
             else if((literal > 0 && valor == 1) || (literal < 0 && valor == -1)){//pelo menos um literal é verdadeiro
+                //      a                1  = a        -a             -1 = a       
                 clausula_satisfeita = true;
-                break; //como a clausula é true, nao precisa olhar o resto dos literais
+                //exemplo:
+                //(a v -b)
+                //a = 1 é verdadeiro
+                break; //como a clausula é true, nao precisa olhar o resto dos literais ()
             }
         }
         
@@ -102,6 +106,9 @@ int verificar_cnf(CNF *cnf, int atribuicoes[]){ //analisa se alguma atribuicao p
             return CONTRADICAO; //todos os literais deram falso
         if(!clausula_satisfeita && indefinida)
             todas_satisfeitas = false; //ainda nao deu certo, mas pode dar
+            //exemplo:
+            //(-a v c)
+            //(0 v c) depende de c
     }
     return todas_satisfeitas ? SATISFEITA : INDEFINIDA;
 } 
@@ -116,8 +123,10 @@ bool sat(Arvore *no, CNF *expressao, int solucao[]){
     }
     if(estado == CONTRADICAO)
         return false; //se for contradicao, ja pode retornar
-    
-    int prox_variavel = -10; //armazena a proxima variavel nao atribuida
+   
+// caso o retorno da função verificar_cnf seja INDEFINIDA, temos:    
+
+    int prox_variavel = -10; //vai armazenar a proxima variavel nao atribuida
     for(int i = 1; i <= expressao -> num_variaveis; i++){
         if(no -> atribuicoes[i] == 0){ //verifica se a variavel ainda nao foi atribuida
             prox_variavel = i; //o i ainda nao foi atribuido, entao armazena 
@@ -131,10 +140,13 @@ bool sat(Arvore *no, CNF *expressao, int solucao[]){
     //tentativa pra atribuir 1 (v)
     struct Arvore *esq = malloc(sizeof(Arvore)); //cria um novo nó da a
     memcpy(esq -> atribuicoes, no -> atribuicoes, sizeof(int) * MAX_VAR); //copia as atribuicoes do nó ant para o esq
+
     esq -> atribuicoes[prox_variavel] = 1; //atribui 1 a proxima variavel
     esq -> variavel = prox_variavel; //guarada a variavel que foi atribuida
     esq -> valor = 1; //registra o valor nesse nó
-
+    //exemplo:
+    //(0 V -c)
+    //(0 v 0)
     if(sat(esq, expressao, solucao)){ //chamada recursiva com nova atr
         free(esq);
         return true; 
@@ -146,7 +158,9 @@ bool sat(Arvore *no, CNF *expressao, int solucao[]){
     dir -> atribuicoes[prox_variavel] = -1; //atribui -1 (f) na proxima variavel
     dir -> variavel = prox_variavel; //guarda a variavel
     dir -> valor = -1; //registra o valor
-
+    //exemplo:
+    //(0 v -c)
+    //(0 v 1) da 1, então entra no if e retorna true
     if(sat(dir, expressao, solucao)){ //chamada recursiva pra direita
         free(dir);
         return true;
