@@ -5,7 +5,7 @@
 #include <locale.h>
 
 #define MAX_VAR 2000
-#define MAX_CLAUSULAS 2000
+#define MAX_CLAUSULAS 2500
 #define MAX_LITERAIS 200
 
 #define SATISFEITA 0
@@ -191,7 +191,7 @@ int main(){
     printf("\t   ╚══════╝╚═╝  ╚═╝   ╚═╝       ╚══════╝ ╚═════╝ ╚══════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝\n");
     printf("\033[0m");
 
-    ler_arquivo("C:\\Users\\laris\\Desktop\\SAT_SOLVER\\entrada.txt", &expressao);
+    ler_arquivo("C:\\Users\\laris\\Desktop\\SAT_SOLVER\\entrada.cnf", &expressao);
 
     for(int i = 0; i <= expressao.num_variaveis; i++) //deixa o array das atribuicoes zerado
         raiz.atribuicoes[i] = 0;
@@ -210,8 +210,12 @@ int main(){
         printf("\t\t\t\t\t | Variável |  Valor |\n");
         printf("\t\t\t\t\t +-------------------+\n");
 
-        for(int i = 1; i <= expressao.num_variaveis; i++)
-            printf("\t\t\t\t\t |     %d    |    %d   |\n", i, solucao[i] == 1 ? 1 : 0);
+        for(int i = 1; i <= expressao.num_variaveis; i++){
+            if(i < 10)
+                printf("\t\t\t\t\t |     %d    |    %d   |\n", i, solucao[i] == 1 ? 1 : 0);
+            else    
+                printf("\t\t\t\t\t |     %d   |    %d   |\n", i, solucao[i] == 1 ? 1 : 0);
+        }
 
         printf("\t\t\t\t\t +-------------------+\n");
         printf("\033[0m"); 
