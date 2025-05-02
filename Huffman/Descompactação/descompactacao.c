@@ -81,6 +81,7 @@ void decodificar_arquivo(FILE* comprimido, FILE* destino, Nodo* raiz, int lixo) 
             atual = raiz;
         }
     }
+    printf("Descompactação concluída com sucesso!\n");
 }
 
 void liberar_arvore(Nodo* no) {
@@ -91,11 +92,12 @@ void liberar_arvore(Nodo* no) {
     free(no);
 }
 
-void descompactar() {
+int main() {
+
     FILE* entrada = fopen("C:\\huffman\\compactado.huff", "rb");
     if (!entrada) {
         fprintf(stderr, "Erro ao abrir arquivo compactado!\n");
-        return;
+        return 0;
     }
 
     int lixo = 0, tam_arvore = 0;
@@ -113,7 +115,7 @@ void descompactar() {
         fprintf(stderr, "Erro ao criar arquivo de saída!\n");
         liberar_arvore(raiz);
         fclose(entrada);
-        return;
+        return 0;
     }
 
     decodificar_arquivo(entrada, saida, raiz, lixo);
