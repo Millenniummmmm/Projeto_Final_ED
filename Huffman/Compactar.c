@@ -368,8 +368,11 @@ char* Arvore_Pre_Ordem(Base* raiz) {
     e pode ser descompactado corretamente usando a mesma árvore de Huffman.
 */
 
-void Compactar_Arquivo(unsigned char *dados, long long tamanhoArquivo, char **dicionario, Base *HuffTree) {
-    FILE *arquivo = fopen("C:\\Huffman\\compactado.huff", "wb");
+void Compactar_Arquivo(unsigned char *dados, long long tamanhoArquivo, char **dicionario, Base *HuffTree, char *caminho_arquivo) {
+    char saida[FILENAME_MAX];
+    snprintf(saida, FILENAME_MAX, "C:\\Huffman\\%s.huff", caminho_arquivo); 
+
+    FILE *arquivo = fopen(saida, "wb");
     if (arquivo == NULL) {
         perror("Erro ao abrir o arquivo para escrita.\n");
         return;
@@ -485,7 +488,7 @@ void Comprimir_Dados() {
 
     // Passo 6: Codificação e Compactação
     
-    Compactar_Arquivo(dados, tamanhoArquivo, dicionario, HuffTree);
+    Compactar_Arquivo(dados, tamanhoArquivo, dicionario, HuffTree, nome_arquivo);
 
     // Libera a memória alocada
 
