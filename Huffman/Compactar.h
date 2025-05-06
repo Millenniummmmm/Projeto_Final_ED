@@ -52,7 +52,7 @@ bool Caracter_Especial(unsigned char c);
 void Escrever_Pre_Ordem(Base* raiz, char* buffer, int* posicao);
 int Calcular_Tamanho_Arvore(Base* raiz);
 char* Arvore_Pre_Ordem(Base* raiz);
-void Compactar_Arquivo(unsigned char *dados, long long tamanhoArquivo, char **dicionario, Base *HuffTree);
+void Compactar_Arquivo(unsigned char *dados, long long tamanhoArquivo, char **dicionario, Base *HuffTree, char *caminho_completo);
 
 // Função principal de compressão
 void Comprimir_Dados();
