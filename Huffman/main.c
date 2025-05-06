@@ -70,8 +70,11 @@ int main() {
             Descomprimir_Dados();
             break;
         case 3:
+            printf("\033[1;32m");
+            printf("Obrigado por usar o programa!\n");
             printf("\033[31;31m");
             printf("Saindo...\n");
+            Sleep(3000);
             exit(0);
         default:
             printf("Opção inválida.\n");
