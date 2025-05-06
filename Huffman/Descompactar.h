@@ -35,4 +35,4 @@ void ler_arvore(FILE* arq, unsigned char* buffer, int tamanho);
 void decodificar_arquivo(FILE* comprimido, FILE* destino, Nodo* raiz, int lixo);
 void Descomprimir_Dados();
 
-#endif // DESCOMPACTAR_H
+#endif 
