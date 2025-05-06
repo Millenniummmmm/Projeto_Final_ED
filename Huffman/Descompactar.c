@@ -81,10 +81,20 @@ void liberar_arvore(Nodo* no) {
 }
 
 void Descomprimir_Dados() {
-    FILE* entrada = fopen("C:\\Huffman\\compactado.huff", "rb");
+
+    printf("\033[1;32m");
+    printf("Digite o nome do arquivo a ser descompactado: ");
+    char nome_arquivo[FILENAME_MAX];
+    scanf(" %[^\n]", nome_arquivo);
+    printf("\033[0m");
+
+    char caminho_completo[FILENAME_MAX];
+    snprintf(caminho_completo, FILENAME_MAX, "C:\\Huffman\\%s", nome_arquivo);
+
+    FILE* entrada = fopen(caminho_completo, "rb");
     if (!entrada) {
         fprintf(stderr, "Erro ao abrir arquivo compactado!\n");
-        return 0;
+        exit(EXIT_FAILURE);
     }
 
     int lixo = 0, tam_arvore = 0;
@@ -97,7 +107,20 @@ void Descomprimir_Dados() {
     Nodo* raiz = reconstruir_arvore(preordem, &pos, tam_arvore);
     free(preordem);
 
-    FILE* saida = fopen("C:\\Huffman\\saida.out", "wb");
+    int nome_arquivo_len = strlen(nome_arquivo);
+    
+    for(int i = nome_arquivo_len - 1; i >= 0; i--) {
+        if(nome_arquivo[i] == '.') {
+            nome_arquivo[i] = '\0';
+            break;
+        }
+    }
+
+    char caminho_completo_final[FILENAME_MAX];
+    snprintf(caminho_completo_final, FILENAME_MAX, "C:\\Huffman\\%s", nome_arquivo);
+
+
+    FILE* saida = fopen(caminho_completo_final, "wb");
     if (!saida) {
         fprintf(stderr, "Erro ao criar arquivo de saída!\n");
         liberar_arvore(raiz);
