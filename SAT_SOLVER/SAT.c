@@ -150,11 +150,11 @@ void rodar(){
     char nome_arquivo[FILENAME_MAX];
 
     printf("\033[1;32m");
-    printf("Digite o nome do arquivo a ser compactado: ");
+    printf("Digite o nome do arquivo a ser analisado: ");
     scanf(" %[^\n]", nome_arquivo);
     printf("\033[0m");
     char caminho_completo[FILENAME_MAX];
-    snprintf(caminho_completo, FILENAME_MAX, "C:\\Users\\laris\\Desktop\\SAT_SOLVER\\%s.cnf", nome_arquivo);
+    snprintf(caminho_completo, FILENAME_MAX, "C:\\Users\\laris\\Desktop\\SAT_SOLVER\\Testes\\%s.cnf", nome_arquivo);
 
     FILE *arquivo = fopen(caminho_completo, "r");
     if(!arquivo){
