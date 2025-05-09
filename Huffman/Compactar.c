@@ -265,12 +265,6 @@ void Completar_Dicionario(Base* raiz, char** dicionario, char *codigo, int colun
     Aqui teremos as funções auxiliares para a geração do cabeçalho .huff;
 */
 
-// Recebe o tamanho do codigo binario produzido pela codificacao e retorna o tamanho do lixo em decimal que vai ser adicionado no cabeçalho
-
-int Calcular_Lixo(long long tamanho_bits) {
-    return (8 - (tamanho_bits % 8)) % 8;
-}
-
 // Verifica se é um caracter de escape. Retorna true se for, false se não for.
 
 bool Caracter_Especial(unsigned char c) {
