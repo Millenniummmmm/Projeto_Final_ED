@@ -3,13 +3,13 @@
 // ---------- LEITURA DOS DADOS ----------
 void ler_arquivo(const char *nome_arq, CNF *expressao){
     //printf("Tentando abrir: %s\n", nome_arq); //debug
-    FILE *arquivo = fopen(nome_arq, "r"); //r porque é read
+    FILE *arquivo = fopen(nome_arq, "r"); //r porque é read (sem ser binario)
     
     if(!arquivo){
         perror("Erro ao abrir o arquivo no ler arquivo");
         exit(1);
     }
-
+                //(a+b)&(!a+c)&(b+!c)
     char linha[300]; //array pra ver em qual linha ta
     int indice = 0; //indice pra preencher as clausulas lidas
 
@@ -26,7 +26,8 @@ void ler_arquivo(const char *nome_arq, CNF *expressao){
         cl.tamanho = 0;//começar na posiçao zero
 
         int num_lido; //armazenar numero lido
-        char *percorrer_s = linha; //ponteiro pra percorrer a string
+        char *percorrer_s = linha; //ponteiro pra percorrer a string, já que linha não muda
+        // 1 2 3 -4 0
         while(sscanf(percorrer_s, "%d", &num_lido) == 1 && num_lido != 0){ //le um numero (negativo ou positivo) e se for diferente de 0, continua o loop
             cl.literais[cl.tamanho++] = num_lido; //adiciona o literal ao arrau de literais da struct e incrementa o tamanho
             
@@ -50,16 +51,20 @@ int verificar_cnf(CNF *cnf, int atribuicoes[]){ //ponteiro para conjuto de claus
     bool todas_satisfeitas = true;
 
     for(int i = 0; i < cnf -> num_clausulas; i++){ //for para navegar clausula por clausula
-        Clausula *cl = &cnf -> clausulas[i]; //cria um ponteiro e pega o endereço da clausula 
+        Clausula *cl = &cnf -> clausulas[i]; //cria um ponteiro e pega o endereço da clausula pra ser mais eficiente e consumir menos memoria
         bool clausula_satisfeita = false;  //como ainda nao viu, coloca como falso
         bool indefinida = false; //mesma coisa de cima
 
         for(int j = 0; j < cl -> tamanho; j++){//loop pra percorrer os literais na clausula
+                    //1 2 3 -4 0
             int literal = cl -> literais[j];
             int variavel = abs(literal); //numero da variavel, sempre positvo pq estamos vendo o indice
             //vetor[-4] => vetor[4]
             int valor = atribuicoes[variavel]; //valor atribuido: -1(falso), 0(nao atribuida) ou 1(vdd)
-    
+            /*
+                 1 0
+                -1 0
+            */
             if(valor == 0) //nao foi atribuuida (nao é falsa nem verdadeira)
                 indefinida = true; //marca como indefinida
             else if((literal > 0 && valor == 1) || (literal < 0 && valor == -1)){//pelo menos um literal é verdadeiro
@@ -113,10 +118,10 @@ bool sat(Arvore *no, CNF *expressao, int solucao[]){
 
     esq -> atribuicoes[prox_variavel] = 1; //atribui 1 a proxima variavel
     esq -> variavel = prox_variavel; //guarada a variavel que foi atribuida
-    esq -> valor = 1; //registra o valor nesse nó
     //exemplo:
     //(0 V -c)
     //(0 v 0)
+
     if(sat(esq, expressao, solucao)){ //chamada recursiva com nova atr
         //se retornar verdadeiro é pq tem uma solução possível com essa atr
         free(esq);
@@ -128,7 +133,6 @@ bool sat(Arvore *no, CNF *expressao, int solucao[]){
     memcpy(dir -> atribuicoes, no -> atribuicoes, sizeof(int) * MAX_VAR);
     dir -> atribuicoes[prox_variavel] = -1; //atribui -1 (f) na proxima variavel
     dir -> variavel = prox_variavel; //guarda a variavel
-    dir -> valor = -1; //registra o valor
     //exemplo:
     //(0 v -c)
     //(0 v 1) da 1, então entra no if e retorna true
