@@ -1,17 +1,5 @@
 #include "Descompactar.h" // Inclui as funções necessárias
 
-/* Função: verifica_bit
- * Verifica o valor de um bit específico em um byte
- * Parâmetros:
- *   byte - o byte a ser analisado
- *   pos - posição do bit a verificar (0-7, onde 0 é o bit menos significativo)
- * Retorno:
- *   1 se o bit estiver setado, 0 caso contrário
- */
-int verifica_bit(unsigned char byte, int pos) {
-    return (byte >> pos) & 1; // Desloca o byte 'pos' posições para direita e faz AND com 1
-}
-
 /* Função: interpretar_cabecalho
  * Extrai informações do cabeçalho do arquivo compactado
  * Parâmetros:
@@ -27,6 +15,18 @@ void interpretar_cabecalho(FILE* arq, int* lixo, int* tamanho_arvore) {
     *lixo = primeiro >> 5; // Extrai os 3 bits mais significativos (bits 7-5)
     *tamanho_arvore = ((primeiro & 31) << 8) | segundo; // Combina os 5 bits restantes com o segundo byte, 31 porque 2^5 = 32 posições
 }
+
+/* Função: ler_arvore
+ * Lê os bytes da árvore serializada do arquivo
+ * Parâmetros:
+ *   arq - arquivo de entrada
+ *   buffer - buffer para armazenar os dados lidos
+ *   tamanho - quantidade de bytes a ler
+ */
+void ler_arvore(FILE* arq, unsigned char* buffer, int tamanho) {
+    fread(buffer, 1, tamanho, arq); // Lê 'tamanho' bytes do arquivo para o buffer
+}
+
 /* Função: novo_no
  * Cria um novo nó da árvore de Huffman
  * Parâmetro:
@@ -42,7 +42,7 @@ Nodo* novo_no(unsigned char simb) {
     }
     unsigned char* ptr = (unsigned char*) malloc(sizeof(unsigned char)); // Aloca espaço para o símbolo
     *ptr = simb;
-    novo->simbolo = (void*) ptr;
+    novo->simbolo = ptr;
     novo->esquerda = novo->direita = NULL; // Inicializa filhos como NULL (nó folha)
     return novo;
 }
@@ -74,15 +74,16 @@ Nodo* reconstruir_arvore(unsigned char* dados, int* idx, int total) {
     return pai;
 }
 
-/* Função: ler_arvore
- * Lê os bytes da árvore serializada do arquivo
+/* Função: verifica_bit
+ * Verifica o valor de um bit específico em um byte
  * Parâmetros:
- *   arq - arquivo de entrada
- *   buffer - buffer para armazenar os dados lidos
- *   tamanho - quantidade de bytes a ler
+ *   byte - o byte a ser analisado
+ *   pos - posição do bit a verificar (0-7, onde 0 é o bit menos significativo)
+ * Retorno:
+ *   1 se o bit estiver setado, 0 caso contrário
  */
-void ler_arvore(FILE* arq, unsigned char* buffer, int tamanho) {
-    fread(buffer, 1, tamanho, arq); // Lê 'tamanho' bytes do arquivo para o buffer
+int verifica_bit(unsigned char byte, int pos) {
+    return (byte >> pos) & 1; // Desloca o byte 'pos' posições para direita e faz AND com 1
 }
 
 /* Função: decodificar_arquivo
@@ -100,7 +101,7 @@ void decodificar_arquivo(FILE* comprimido, FILE* destino, Nodo* raiz, int lixo) 
 
     while (fread(&proximo, 1, 1, comprimido)) { // Lê todos os bytes restantes
         for (int i = 7; i >= 0; i--) { // Processa cada bit do byte anterior
-            atual = verifica_bit(anterior, i) ? atual->direita : atual->esquerda;
+            atual = verifica_bit(anterior, i) ? atual->direita : atual->esquerda; //verifica bit 1 ou 0
             if (!atual->esquerda && !atual->direita) { // Chegou em folha
                 fwrite((unsigned char*)atual->simbolo, 1, 1, destino); 
                 atual = raiz; // Volta para raiz
