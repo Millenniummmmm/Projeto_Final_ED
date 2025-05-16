@@ -61,10 +61,6 @@ int verificar_cnf(CNF *cnf, int atribuicoes[]){ //ponteiro para conjuto de claus
             int variavel = abs(literal); //numero da variavel, sempre positvo pq estamos vendo o indice
             //vetor[-4] => vetor[4]
             int valor = atribuicoes[variavel]; //valor atribuido: -1(falso), 0(nao atribuida) ou 1(vdd)
-            /*
-                 1 0
-                -1 0
-            */
             if(valor == 0) //nao foi atribuuida (nao é falsa nem verdadeira)
                 indefinida = true; //marca como indefinida
             else if((literal > 0 && valor == 1) || (literal < 0 && valor == -1)){//pelo menos um literal é verdadeiro
@@ -117,7 +113,7 @@ bool sat(Arvore *no, CNF *expressao, int solucao[]){
     memcpy(esq -> atribuicoes, no -> atribuicoes, sizeof(int) * MAX_VAR); //copia as atribuicoes do nó ant para o esq
 
     esq -> atribuicoes[prox_variavel] = 1; //atribui 1 a proxima variavel
-    esq -> variavel = prox_variavel; //guarada a variavel que foi atribuida
+     //guarada a variavel que foi atribuida
     //exemplo:
     //(0 V -c)
     //(0 v 0)
@@ -132,7 +128,7 @@ bool sat(Arvore *no, CNF *expressao, int solucao[]){
     struct Arvore *dir = malloc(sizeof(Arvore)); 
     memcpy(dir -> atribuicoes, no -> atribuicoes, sizeof(int) * MAX_VAR);
     dir -> atribuicoes[prox_variavel] = -1; //atribui -1 (f) na proxima variavel
-    dir -> variavel = prox_variavel; //guarda a variavel
+
     //exemplo:
     //(0 v -c)
     //(0 v 1) da 1, então entra no if e retorna true
