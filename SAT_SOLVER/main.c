@@ -34,7 +34,7 @@ int main(){
                 break;
             case 2:
                 printf("\033[1;32m");
-                printf("Obrigado por usar o programa!! :)");
+                printf("Obrigado por usar o programa!! :)\n");
                 printf("\033[31;31m");
                 printf("Saindo...\n");
                 Sleep(3000);
