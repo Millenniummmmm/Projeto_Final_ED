@@ -18,13 +18,14 @@ int verifica_bit(unsigned char byte, int pos) {
  *   arq - ponteiro para o arquivo compactado
  *   lixo - ponteiro para armazenar quantidade de bits lixo
  *   tamanho_arvore - ponteiro para armazenar tamanho da árvore
+ * 
  */
 void interpretar_cabecalho(FILE* arq, int* lixo, int* tamanho_arvore) {
     unsigned char primeiro, segundo;
     fread(&primeiro, 1, 1, arq); // Lê primeiro byte (contém 3 bits lixo + 5 bits altos do tamanho)
     fread(&segundo, 1, 1, arq);  // Lê segundo byte (contém 8 bits baixos do tamanho)
 
-    *lixo = primeiro >> 5; // Extrai os 3 bits mais significativos (bits 7-5)
+    *lixo = primeiro >> 5; // faz o shift bit 5 vezes e extrai os 3 bits mais significativos (bits 7-5)
     *tamanho_arvore = ((primeiro & 31) << 8) | segundo; // Combina os 5 bits restantes com o segundo byte, 31 porque 2^5 = 32 posições
 }
 /* Função: novo_no
@@ -42,10 +43,10 @@ Nodo* novo_no(unsigned char simb) {
     }
     unsigned char* ptr = (unsigned char*) malloc(sizeof(unsigned char)); // Aloca espaço para o símbolo
     *ptr = simb;
-    novo->simbolo = (void*) ptr;
+    novo->simbolo =  ptr;
     novo->esquerda = novo->direita = NULL; // Inicializa filhos como NULL (nó folha)
     return novo;
-}
+} 
 
 /* Função: reconstruir_arvore
  * Reconstrói a árvore de Huffman a partir de sua representação em pré-ordem
@@ -55,6 +56,7 @@ Nodo* novo_no(unsigned char simb) {
  *   total - tamanho total do vetor
  * Retorno:
  *   Ponteiro para a raiz da árvore reconstruída
+ *
  */
 Nodo* reconstruir_arvore(unsigned char* dados, int* idx, int total) {
     if (*idx >= total) return NULL; // Verifica fim do vetor
@@ -92,6 +94,7 @@ void ler_arvore(FILE* arq, unsigned char* buffer, int tamanho) {
  *   destino - arquivo de saída
  *   raiz - raiz da árvore de Huffman
  *   lixo - quantidade de bits lixo no último byte
+ * 
  */
 void decodificar_arquivo(FILE* comprimido, FILE* destino, Nodo* raiz, int lixo) {
     Nodo* atual = raiz;
