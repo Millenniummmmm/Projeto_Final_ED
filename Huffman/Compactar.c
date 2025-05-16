@@ -91,7 +91,7 @@ void Criar_Lista_Encadeada(Lista *l) {
 // Vai inserir os nós da árvore na lista encadeada de forma ordenada(Ordem Crescente). Recebe o nó a ser inserido e a lista encadeada.
 // No final de tudo, a head vai apontar para o no com menor frequencia.
 
-void Inserir_em_Ordem(Lista *l, Base *base){
+void Inserir_em_Ordem_Lista(Lista *l, Base *base){
 
     if(l->head == NULL || *(long long int *)base->frequencia < *(long long int *)l->head->frequencia){
          // Se caso a frequencia for menor que a frequencia do inicio da lista ou se a lista estiver vazia
@@ -134,7 +134,7 @@ void Preencher_Lista_Encadeada(Lista *l, unsigned int *tabela_frequencia) {
             novo_nodo->proximo = NULL; 
             novo_nodo->direita = NULL; 
             novo_nodo->esquerda = NULL; 
-            Inserir_em_Ordem(l, novo_nodo); // Vai garantir que a lista esteja ordenada.
+            Inserir_em_Ordem_Lista(l, novo_nodo); // Vai garantir que a lista esteja ordenada.
         }
     }
 }
@@ -182,7 +182,7 @@ Base* Construir_Arvore_de_Huffman(Lista *no){
 
         raiz_temporaria->frequencia = frequencia; // A frequência do novo nó é a soma das frequências dos nós filhos
         unsigned char *simbolo = malloc(sizeof(unsigned char));
-        *simbolo = '*';
+        *simbolo = '*'; 
         raiz_temporaria->dados = simbolo;
 
         // Os filhos do novo nó são os nós que foram removidos da lista
@@ -190,9 +190,9 @@ Base* Construir_Arvore_de_Huffman(Lista *no){
         raiz_temporaria->direita = node2; 
         raiz_temporaria->proximo = NULL; // O próximo nó é NULL, pois ainda vai ser inserido na lista
 
-        Inserir_em_Ordem(no, raiz_temporaria); // Vai inserir o Nó pai na posição correta
-        
+        Inserir_em_Ordem_Lista(no, raiz_temporaria); // Vai inserir o Nó pai na posição correta
     }
+
     Base *raiz_final = no->head; // A raiz da árvore é o único nó restante na lista encadeada
     no->head = NULL; // A lista encadeada agora está vazia
     no->tamanho = 0; // O tamanho da lista encadeada agora é zero
@@ -264,7 +264,6 @@ void Completar_Dicionario(Base* raiz, char** dicionario, char *codigo, int colun
 /*
     Aqui teremos as funções auxiliares para a geração do cabeçalho .huff;
 */
-
 // Verifica se é um caracter de escape. Retorna true se for, false se não for.
 
 bool Caracter_Especial(unsigned char c) {
@@ -276,7 +275,7 @@ bool Caracter_Especial(unsigned char c) {
 
 // Vai receber a raiz da arvore, o vetor saída e a posição inicial dele. Essa função vai escrever a árvore em pré-ordem no vetor de saída.
 
-void Escrever_Pre_Ordem(Base* raiz, char* buffer, int* posicao) {
+void Escrever_Pre_Ordem_Arvore(Base* raiz, char* buffer, int* posicao) {
     if (raiz == NULL) return;
 
     // Folha
@@ -295,8 +294,8 @@ void Escrever_Pre_Ordem(Base* raiz, char* buffer, int* posicao) {
     // Nó interno
     buffer[(*posicao)++] = '*';
     // Pré-ordem: escreve o nó atual, depois a subárvore esquerda e depois a subárvore direita
-    Escrever_Pre_Ordem(raiz->esquerda, buffer, posicao);
-    Escrever_Pre_Ordem(raiz->direita, buffer, posicao);
+    Escrever_Pre_Ordem_Arvore(raiz->esquerda, buffer, posicao);
+    Escrever_Pre_Ordem_Arvore(raiz->direita, buffer, posicao);
 }
 
 // Receve a raiz e retorna o tamanho total da árvore recursivamente. Caracter de escape conta como dois por causa do \\  e do \*
@@ -328,7 +327,7 @@ char* Arvore_Pre_Ordem(Base* raiz) {
     }
 
     int pos = 0;
-    Escrever_Pre_Ordem(raiz, saida, &pos);
+    Escrever_Pre_Ordem_Arvore(raiz, saida, &pos);
     saida[pos] = '\0'; // Adiciona o terminador de string
     
     return saida;
@@ -377,7 +376,7 @@ void Compactar_Arquivo(unsigned char *dados, long long tamanhoArquivo, char **di
     char *arvore_serializada = Arvore_Pre_Ordem(HuffTree);
 
     // Reservamos espaço para o cabeçalho
-    fwrite("\0", 1, 1, arquivo);
+    fwrite("\0", 1, 1, arquivo); 
     fwrite("\0", 1, 1, arquivo);
     fwrite(arvore_serializada, 1, tam_arvore, arquivo);
 
@@ -491,4 +490,3 @@ void Comprimir_Dados() {
     Liberar_Dicionario(dicionario); // Libera o dicionário
     Liberar_Lista(&lista); // Libera a lista encadeada
 }
-
